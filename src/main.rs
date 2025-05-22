@@ -4,15 +4,26 @@ use histogram::Histogram;
 use std::fs::OpenOptions;
 use std::path::PathBuf;
 use memmap2::MmapMut;
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(name = "histogram")]
+#[command(about = "Generates histogram data to an memory mapped output file")]
+struct Args {
+    /// Output file path for histogram data
+    #[arg(help = "Path to the output file")]
+    output: PathBuf,
+}
 
 fn main() {
-    let path: PathBuf = "histogram".into();
+    let args = Args::parse();
+
     let file = OpenOptions::new()
                            .read(true)
                            .write(true)
                            .create(true)
                            .truncate(true)
-                           .open(&path).expect("failed to open");
+                           .open(&args.output).expect("failed to open");
     file.set_len(1920 * 8).expect("error setting length");
 
     let mut histogram = Histogram::new(5, 64).unwrap();
